@@ -4,10 +4,10 @@
 #include <string>
 
 struct Contact {
-    std::string Name;
-    std::string Email;
-    std::string ShippingAddress;
-    std::string Phone;
+    std::string name;
+    std::string email;
+    std::string shippingAddress;
+    std::string phone;
 };
 
 struct Supplier : public Contact {
@@ -18,15 +18,15 @@ struct Client : public Contact {
 
 struct Product {
     std::string SKU;
-    std::string Description;
-    double SalesPrice;
-    double PurchasePrice;
+    std::string description;
+    double salesPrice;
+    double purchasePrice;
 };
 
-struct InventoryLocation {
-    std::string Abbreviation;
-    std::string Name;
-    std::string Address;
+struct Inventory {
+    std::string abbreviation;
+    std::string name;
+    std::string address;
 };
 
 #endif // CLASSES_H

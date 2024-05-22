@@ -15,13 +15,12 @@ private:
 public:
     MegaventoryAPI(const std::string& key);
     ~MegaventoryAPI();
-    std::string updateProduct(const Product& product);
-    std::string updateClient(const Client& client);
-    std::string updateSupplier(const Supplier& supplier);
-    std::string updateInventoryLocation(const InventoryLocation& location);
-    std::string createPurchaseOrder(const Product& product, const Supplier& supplier, int quantity);
-    std::string createSalesOrder(const Product& product, const Client& client, int quantity);
-    std::string updateInventory(const std::string& productSKU, int quantity);
+    void updateProduct(const Product& product);
+    void updateContact(const Contact& Contact);
+    void updateInventory(const Inventory& inventory);
+    void createPurchaseOrder(const Product& product, const Supplier& supplier, int quantity);
+    void createSalesOrder(const Product& product, const Client& client, int quantity);
+    void updateInventory(const std::string& productSKU, int quantity);
 };
 
 #endif // MEGAVENTORYAPI_H
