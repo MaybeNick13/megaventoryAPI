@@ -6,6 +6,7 @@
 
 using json = nlohmann::json;
 
+
 MegaventoryAPI::MegaventoryAPI(const std::string& key) : apiKey(key) {
     curl_global_init(CURL_GLOBAL_ALL);
     curl = curl_easy_init();
@@ -16,12 +17,25 @@ MegaventoryAPI::~MegaventoryAPI() {
     curl_global_cleanup();
 }
 
-size_t MegaventoryAPI::WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+size_t MegaventoryAPI::WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     ((std::string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
 }
 
-void MegaventoryAPI::updateProduct(const Product& product) {
+void MegaventoryAPI::performRequest(const std::string& url, const std::string& payload, std::string& response) {
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        throw std::runtime_error("Request failed: " + std::string(curl_easy_strerror(res)));
+    }
+}
+
+std::string MegaventoryAPI::prepareProductPayload(const Product& product) const {
     json j;
     j["APIKEY"] = apiKey;
     j["mvProduct"] = {
@@ -30,24 +44,10 @@ void MegaventoryAPI::updateProduct(const Product& product) {
         {"ProductSellingPrice", product.salesPrice},
         {"ProductPurchasePrice", product.purchasePrice}
     };
-
-    std::string payload = j.dump();
-
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.megaventory.com/v2017a/Product/ProductUpdate");
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
-    std::string response;
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-
-    CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-    } else {
-        std::cout << "Response: " << response << std::endl;
-    }
+    return j.dump();
 }
 
-void MegaventoryAPI::updateContact(const Contact& contact) {
+std::string MegaventoryAPI::prepareContactPayload(const Contact& contact) const {
     json j;
     j["APIKEY"] = apiKey;
     j["mvSupplierClient"] = {
@@ -56,24 +56,10 @@ void MegaventoryAPI::updateContact(const Contact& contact) {
         {"SupplierClientShippingAddress1", contact.shippingAddress},
         {"SupplierClientPhone1", contact.phone}
     };
-
-    std::string payload = j.dump();
-
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.megaventory.com/v2017a/SupplierClient/SupplierClientUpdate");
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
-    std::string response;
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-
-    CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-    } else {
-        std::cout << "Response: " << response << std::endl;
-    }
+    return j.dump();
 }
 
-void MegaventoryAPI::updateInventory(const Inventory& inventory) {
+std::string MegaventoryAPI::prepareInventoryPayload(const Inventory& inventory) const {
     json j;
     j["APIKEY"] = apiKey;
     j["mvInventoryLocation"] = {
@@ -81,19 +67,26 @@ void MegaventoryAPI::updateInventory(const Inventory& inventory) {
         {"InventoryLocationName", inventory.name},
         {"InventoryLocationAddress", inventory.address}
     };
+    return j.dump();
+}
 
-    std::string payload = j.dump();
-
-    curl_easy_setopt(curl, CURLOPT_URL, "https://api.megaventory.com/v2017a/InventoryLocation/InventoryLocationUpdate");
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
+void MegaventoryAPI::updateProduct(const Product& product) {
+    std::string payload = prepareProductPayload(product);
     std::string response;
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    performRequest("https://api.megaventory.com/v2017a/Product/ProductUpdate", payload, response);
+    std::cout << "Response: " << response << std::endl;
+}
 
-    CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-    } else {
-        std::cout << "Response: " << response << std::endl;
-    }
+void MegaventoryAPI::updateContact(const Contact& contact) {
+    std::string payload = prepareContactPayload(contact);
+    std::string response;
+    performRequest("https://api.megaventory.com/v2017a/SupplierClient/SupplierClientUpdate", payload, response);
+    std::cout << "Response: " << response << std::endl;
+}
+
+void MegaventoryAPI::updateInventory(const Inventory& inventory) {
+    std::string payload = prepareInventoryPayload(inventory);
+    std::string response;
+    performRequest("https://api.megaventory.com/v2017a/InventoryLocation/InventoryLocationUpdate", payload, response);
+    std::cout << "Response: " << response << std::endl;
 }

@@ -3,7 +3,7 @@
 
 int main() {
     try {
-        std::string apiKey = "ec1cc17aab2a2c2d@m150644"; 
+        std::string apiKey = "5b45997893c4391b@m150644"; 
         MegaventoryAPI megaventory(apiKey);
 
             // Product 1
@@ -42,19 +42,19 @@ int main() {
 
 
         megaventory.updateProduct(product1);
-        std::cout << "Updated Product 1: Puma sneakers" << std::endl;
+        //std::cout << "Updated Product 1: Puma sneakers" << std::endl;
 
         megaventory.updateProduct(product2);
-        std::cout << "Updated Product 2: New Balance sneakers" << std::endl;
+        //std::cout << "Updated Product 2: New Balance sneakers" << std::endl;
 
         megaventory.updateContact(client);
-        std::cout << "Updated Client: Achilles" << std::endl;
+        //std::cout << "Updated Client: Achilles" << std::endl;
 
         megaventory.updateContact(supplier);
-        std::cout << "Updated Supplier: Helen" << std::endl;
+        //std::cout << "Updated Supplier: Helen" << std::endl;
 
         megaventory.updateInventory(inventory);
-        std::cout << "Updated Inventory Location: Demo Project Location" << std::endl;
+        //std::cout << "Updated Inventory Location: Demo Project Location" << std::endl;
 
 
     } catch (const std::exception& e) {
