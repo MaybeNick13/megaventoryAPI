@@ -47,65 +47,84 @@ std::string MegaventoryAPI::prepareProductPayload(const Product& product) const 
     return j.dump();
 }
 
-std::string MegaventoryAPI::prepareContactPayload(const Contact& contact) const {
+std::string MegaventoryAPI::prepareContactPayload(const Contact& contact, const std::string& action, const std::string& sourceApplication = "") const {
     json j;
     j["APIKEY"] = apiKey;
     j["mvSupplierClient"] = {
+        {"SupplierClientType", contact.type},
         {"SupplierClientName", contact.name},
         {"SupplierClientEmail", contact.email},
         {"SupplierClientShippingAddress1", contact.shippingAddress},
         {"SupplierClientPhone1", contact.phone}
     };
+    j["mvRecordAction"] = action;
+    if (!sourceApplication.empty()) {
+        j["mvInsertUpdateDeleteSourceApplication"] = sourceApplication;
+    }
     return j.dump();
 }
 
-std::string MegaventoryAPI::prepareInventoryPayload(const Inventory& inventory) const {
+
+std::string MegaventoryAPI::prepareInventoryPayload(const Inventory& inventory, const std::string& action, const std::string& sourceApplication = "") const {
     json j;
     j["APIKEY"] = apiKey;
     j["mvInventoryLocation"] = {
-        {"InventoryLocationAbbreviation", inventory.abbreviation},
         {"InventoryLocationName", inventory.name},
-        {"InventoryLocationAddress", inventory.address}
+        {"InventoryLocationAbbreviation", inventory.abbreviation}
     };
+    j["mvRecordAction"] = action;
+    if (!sourceApplication.empty()) {
+        j["mvInsertUpdateDeleteSourceApplication"] = sourceApplication;
+    }
     return j.dump();
 }
 
-std::string MegaventoryAPI::preparePurchaseOrderPayload(const Order& order) const {
+
+
+std::string MegaventoryAPI::preparePurchaseOrderPayload(const Order& order, const std::string& action) const {
     json j;
     j["APIKEY"] = apiKey;
     j["mvPurchaseOrder"] = {
+        {"PurchaseOrderSupplierId", order.supplierId},
         {"PurchaseOrderStatus", order.status},
         {"PurchaseOrderDetails", json::array({
             {"PurchaseOrderRowProductSKU", order.product.SKU},
             {"PurchaseOrderRowQuantity", order.quantity}
         })}
     };
+    j["mvRecordAction"] = action;
     return j.dump();
 }
 
-std::string MegaventoryAPI::prepareSalesOrderPayload(const Order& order) const {
+std::string MegaventoryAPI::prepareSalesOrderPayload(const Order& order, const std::string& action) const {
     json j;
     j["APIKEY"] = apiKey;
     j["mvSalesOrder"] = {
+        {"SalesOrderClientId", order.clientId},
         {"SalesOrderStatus", order.status},
         {"SalesOrderDetails", json::array({
             {"SalesOrderRowProductSKU", order.product.SKU},
             {"SalesOrderRowQuantity", order.quantity}
         })}
     };
+    j["mvRecordAction"] = action;
     return j.dump();
 }
+
 
 std::string MegaventoryAPI::prepareInventoryStockPayload(const Product& product, int quantity, const Inventory& inventory) const {
     json j;
     j["APIKEY"] = apiKey;
-    j["mvRecordAdjustment"] = {
-        {"AdjustmentProductSKU", product.SKU},
-        {"AdjustmentQuantity", quantity},
-        {"AdjustmentInventoryLocationID", inventory.abbreviation}
-    };
+    j["mvProductStockUpdateList"] = json::array({
+        {
+            {"ProductSKU", product.SKU},
+            {"ProductQuantity", quantity},
+            {"InventoryLocationID", inventory.id},
+        }
+    });
     return j.dump();
 }
+
 
 void MegaventoryAPI::updateProduct(const Product& product) {
     std::string payload = prepareProductPayload(product);
@@ -145,6 +164,6 @@ void MegaventoryAPI::createSalesOrder(const Order& order) {
 void MegaventoryAPI::updateInventoryStock(const Product& product, int quantity, const Inventory& inventory) {
     std::string payload = prepareInventoryStockPayload(product, quantity, inventory);
     std::string response;
-    performRequest("https://api.megaventory.com/v2017a/InventoryLocationStock/InventoryLocationStockUpdate", payload, response);
+    performRequest("https://api.megaventory.com/v2017a/InventoryLocationStock/ProductStockUpdate", payload, response);
     std::cout << "Response: " << response << std::endl;
 }

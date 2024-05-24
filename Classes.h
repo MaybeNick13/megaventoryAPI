@@ -8,13 +8,10 @@ struct Contact {
     std::string email;
     std::string shippingAddress;
     std::string phone;
+    std::string type;
 };
 
-struct Supplier : public Contact {
-};
 
-struct Client : public Contact {
-};
 
 struct Product {
     std::string SKU;
@@ -33,7 +30,12 @@ struct Order {
     std::string status; 
     Product product;    
     int quantity; 
-    Inventory location;
+    Contact contact;
 }
 
+struct PurchaseOrder : public Order {
+};
+
+struct SalesOrder : public Order {
+};
 #endif // CLASSES_H
