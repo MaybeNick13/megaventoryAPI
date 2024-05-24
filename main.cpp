@@ -3,7 +3,7 @@
 
 int main() {
     try {
-        std::string apiKey = "5b45997893c4391b@m150644"; 
+        std::string apiKey = "ec6d31f54d7b2a2c@m150644"; 
         MegaventoryAPI megaventory(apiKey);
 
         // Product 1
@@ -44,35 +44,35 @@ int main() {
 
         // Purchase Order
         Order Purchase;
-        Purchase.status = "Pending"
+        Purchase.status = "Pending";
         Purchase.product = product2;
         Purchase.quantity = 20;
-        Purchase/contact = supplier;
+        Purchase.contact = supplier;
 
          // Sales Order
         Order Sales;
-        Sales.status = "Verified"
+        Sales.status = "Verified";
         Sales.product = product1;
         Sales.quantity = 10;
-        Sales/contact = client;
+        Sales.contact = client;
 
 
         // Update Product
-        megaventory.updateProduct(product1);  // Assuming the default action is Update if not specified
+        megaventory.updateProduct(product1,"Insert");  // Assuming the default action is Update if not specified
         std::cout << "Updated Product 1: Puma sneakers" << std::endl;
 
-        megaventory.updateProduct(product2);  // Assuming the default action is Update if not specified
+        megaventory.updateProduct(product2,"Insert");  // Assuming the default action is Update if not specified
         std::cout << "Updated Product 2: New Balance sneakers" << std::endl;
 
         // Update Client and Supplier with specific actions
-        megaventory.updateContact(client, "insert");  // Action and source application specified
+        megaventory.updateContact(client, "Insert");  // Action and source application specified
         std::cout << "Updated Client: Achilles" << std::endl;
 
-        megaventory.updateContact(supplier, "insert");  // Action and source application specified
+        megaventory.updateContact(supplier, "Insert");  // Action and source application specified
         std::cout << "Updated Supplier: Helen" << std::endl;
 
         // Update Inventory with specific action
-        megaventory.updateInventory(inventory, "insert");  // Action and source application specified
+        megaventory.updateInventory(inventory, "Insert");  // Action and source application specified
         std::cout << "Updated Inventory Location: Demo Project Location" << std::endl;
 
     } catch (const std::exception& e) {

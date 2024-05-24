@@ -31,7 +31,7 @@ struct Order {
     Product product;    
     int quantity; 
     Contact contact;
-}
+};
 
 struct PurchaseOrder : public Order {
 };
