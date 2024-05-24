@@ -29,4 +29,11 @@ struct Inventory {
     std::string address;
 };
 
+struct Order {
+    std::string status; 
+    Product product;    
+    int quantity; 
+    Inventory location;
+}
+
 #endif // CLASSES_H

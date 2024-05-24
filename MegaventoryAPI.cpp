@@ -70,6 +70,43 @@ std::string MegaventoryAPI::prepareInventoryPayload(const Inventory& inventory) 
     return j.dump();
 }
 
+std::string MegaventoryAPI::preparePurchaseOrderPayload(const Order& order) const {
+    json j;
+    j["APIKEY"] = apiKey;
+    j["mvPurchaseOrder"] = {
+        {"PurchaseOrderStatus", order.status},
+        {"PurchaseOrderDetails", json::array({
+            {"PurchaseOrderRowProductSKU", order.product.SKU},
+            {"PurchaseOrderRowQuantity", order.quantity}
+        })}
+    };
+    return j.dump();
+}
+
+std::string MegaventoryAPI::prepareSalesOrderPayload(const Order& order) const {
+    json j;
+    j["APIKEY"] = apiKey;
+    j["mvSalesOrder"] = {
+        {"SalesOrderStatus", order.status},
+        {"SalesOrderDetails", json::array({
+            {"SalesOrderRowProductSKU", order.product.SKU},
+            {"SalesOrderRowQuantity", order.quantity}
+        })}
+    };
+    return j.dump();
+}
+
+std::string MegaventoryAPI::prepareInventoryStockPayload(const Product& product, int quantity, const Inventory& inventory) const {
+    json j;
+    j["APIKEY"] = apiKey;
+    j["mvRecordAdjustment"] = {
+        {"AdjustmentProductSKU", product.SKU},
+        {"AdjustmentQuantity", quantity},
+        {"AdjustmentInventoryLocationID", inventory.abbreviation}
+    };
+    return j.dump();
+}
+
 void MegaventoryAPI::updateProduct(const Product& product) {
     std::string payload = prepareProductPayload(product);
     std::string response;
@@ -88,5 +125,26 @@ void MegaventoryAPI::updateInventory(const Inventory& inventory) {
     std::string payload = prepareInventoryPayload(inventory);
     std::string response;
     performRequest("https://api.megaventory.com/v2017a/InventoryLocation/InventoryLocationUpdate", payload, response);
+    std::cout << "Response: " << response << std::endl;
+}
+
+void MegaventoryAPI::createPurchaseOrder(const Order& order) {
+    std::string payload = preparePurchaseOrderPayload(order);
+    std::string response;
+    performRequest("https://api.megaventory.com/v2017a/PurchaseOrder/PurchaseOrderUpdate", payload, response);
+    std::cout << "Response: " << response << std::endl;
+}
+
+void MegaventoryAPI::createSalesOrder(const Order& order) {
+    std::string payload = prepareSalesOrderPayload(order);
+    std::string response;
+    performRequest("https://api.megaventory.com/v2017a/SalesOrder/SalesOrderUpdate", payload, response);
+    std::cout << "Response: " << response << std::endl;
+}
+
+void MegaventoryAPI::updateInventoryStock(const Product& product, int quantity, const Inventory& inventory) {
+    std::string payload = prepareInventoryStockPayload(product, quantity, inventory);
+    std::string response;
+    performRequest("https://api.megaventory.com/v2017a/InventoryLocationStock/InventoryLocationStockUpdate", payload, response);
     std::cout << "Response: " << response << std::endl;
 }
